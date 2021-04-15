@@ -122,7 +122,7 @@ The compiler is allowed to assume a contract violation won't happen.
 ```cpp
 // <contracts>
 #ifdef I_SOLEMNLY_SWEAR_I_TRUST_UBSAN
-[[gnu:always_inline]] void violation_handler(diagnostic-information) {
+[[gnu:always_inline]] inline void violation_handler(diagnostic-information) {
     std::assume(false);
     // or
     __builtin_unreachable();
@@ -143,7 +143,7 @@ The compiler is not allowed to assume anything about what happens when a contrac
 extern void violation_handler(diagnostic-information);
 ```
 
-This formulation has interactions with `noexcept` which the design needs to address. Selecting it makes the design a bit more complicated.
+This formulation has interactions with `noexcept` which any design permitting throwing needs to address. Selecting it makes the design a bit more complicated.
 
 ## Unspecified but can't throw
 
@@ -152,7 +152,7 @@ This formulation has interactions with `noexcept` which the design needs to addr
 extern void violation_handler(diagnostic-information) noexcept;
 ```
 
-This formulation is the simplest answer to *how do violation handlers interact with noexcept functions*.
+This formulation is the simplest answer to *how do violation handlers interact with noexcept functions* - they never throw. Still allows continuing after a violation.
 
 ## Unspecified but never returns
 
@@ -160,7 +160,7 @@ This formulation is the simplest answer to *how do violation handlers interact w
 extern [[noreturn]] void violation_handler(diagnostic-information) noexcept;
 ```
 
-This formulation does not admit continuing after a contract violation. The current observation of the authors is that consensus of SG21 is not achievable for this formulation.
+This formulation does not admit continuing after a contract violation, if contract checking is enabled. Specifically, it forbids log-only handlers.
 
 ## Specified alternatives
 
